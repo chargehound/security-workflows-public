@@ -11,9 +11,9 @@ on:
 
 jobs:
   codeql-python:
-    uses: chargehound/security-workflows/.github/workflows/codeql-python.yml@main
+    uses: chargehound/security-workflows-public/.github/workflows/codeql-python.yml@main
   codeql-kotlin:
-    uses: chargehound/security-workflows/.github/workflows/codeql-kotlin.yml@main
+    uses: chargehound/security-workflows-public/.github/workflows/codeql-kotlin.yml@main
     with:
       # optional input for longer-running builds
       timeout-minutes: 25

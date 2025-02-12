@@ -40,20 +40,3 @@ jobs:
           show-openssf-scorecard: false
           license-check: false
           warn-only: true
-
-          # PayPal Open Source Policy
-          # https://paypal.service-now.com/policyportal?sys_kb_id=efdbe7548748ce58cec27408dabb35d4&id=kb_article_view&sysparm_rank=6&sysparm_tsqueryId=04af83d697399a50f86c3aa71153af64
-          # allow-licenses:
-          #   - BSD-2-Clause
-          #   - BSD-3-Clause
-          #   - MIT
-          #   - Apache-2.0
-          # https://github.com/actions/dependency-review-action?tab=readme-ov-file#configuration-options
-          # deny-licenses:
-          #   - LGPL-2.0
-          #   - BSD-2-Clause        
-          # allow-ghsas:
-          #   - GHSA-abcd-1234-5679
-          #   - GHSA-efgh-1234-5679
-          # deny-packages:
-          #   - pkg:gem/ruby-advisory-db-check@0.12.4

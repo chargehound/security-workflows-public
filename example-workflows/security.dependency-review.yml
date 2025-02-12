@@ -11,4 +11,4 @@ on:
 
 jobs:
   dependency-review:
-    uses: chargehound/security-workflows/.github/workflows/dependency-review.yml@main
+    uses: chargehound/security-workflows-public/.github/workflows/dependency-review.yml@main

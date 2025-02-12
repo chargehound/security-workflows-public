@@ -17,7 +17,7 @@ When implementing the workflows in repositories, we chose to reference this repo
 
 jobs:
   codeql-javascript:
-    uses: chargehound/security-workflows/.github/workflows/codeql-javascript.yml@update-setup-node-version
+    uses: chargehound/security-workflows-public/.github/workflows/codeql-javascript.yml@update-setup-node-version
 ```
 - Push these changes to the application's branch (e.g. `test-security-workflows-node-version`)
 - Navigate to the application repository's Actions tab
