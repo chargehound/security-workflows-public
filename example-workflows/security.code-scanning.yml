@@ -1,0 +1,21 @@
+name: CodeQL
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  codeql-python:
+    uses: chargehound/security-workflows/.github/workflows/codeql-python.yml@main
+  codeql-kotlin:
+    uses: chargehound/security-workflows/.github/workflows/codeql-kotlin.yml@main
+    with:
+      # optional input for longer-running builds
+      timeout-minutes: 25
+      # optional build command for compiled languages
+      build-command: 'make build'

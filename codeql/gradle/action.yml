@@ -1,0 +1,98 @@
+name: 'CodeQL - Composite'
+description: 'Composite action for CodeQL'
+inputs:
+  language:
+    description: 'Language to analyze with CodeQL'
+    required: true
+    type: string
+  build-mode:
+    description: 'Build mode to compile language for analysis'
+    default: none
+    required: true
+    type: string
+  timeout-minutes:
+    description: 'Optional override for larger builds'
+    default: 30
+    required: false
+    type: number
+  build-command:
+    description: 'Optional application build command'
+    required: false
+    type: string
+  
+runs:
+  using: "composite"
+  steps:
+    - name: Validate Input (timeout-minutes)
+      if: ${{ inputs.timeout-minutes > 99 }}
+      shell: bash
+      run: |
+        echo "Invalid input (timeout-minutes), maximum value is 99"
+        exit 1
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+
+    - name: Get Artifactory secrets from AWS Secrets Manager
+      uses: aws-actions/aws-secretsmanager-get-secrets@v2.0.7
+      with:
+        parse-json-secrets: true
+        secret-ids: |
+          build/artifactory/fnd-ci
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      env:
+        ARTIFACTORY_USERNAME: ${{ env.BUILD_ARTIFACTORY_FND_CI_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ env.BUILD_ARTIFACTORY_FND_CI_PASSWORD }}
+      with:
+        languages: ${{ inputs.language }}
+        build-mode: ${{ inputs.build-mode }}
+        # config: |
+        #   query-filters:
+        #     - exclude:
+        #         problem.severity:
+        #           - medium
+        #           - low  
+
+        # * Java/Kotlin does not support path-based filtering when using the autobuild build mode. 
+        # The `paths` and `paths-ignore` configuration properties will have no effect for this language. 
+        # If desired, you can use the [advanced-security/filter-sarif Action](https://github.com/advanced-security/filter-sarif) to rewrite the SARIF file to exclude alerts from these paths.
+
+    - name: Manual build 
+      if: inputs.build-mode == 'manual'
+      env:
+        ARTIFACTORY_USERNAME: ${{ env.BUILD_ARTIFACTORY_FND_CI_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ env.BUILD_ARTIFACTORY_FND_CI_PASSWORD }}
+      shell: bash
+      run: |
+        ./gradlew clean assembleDebug -Pgradle.mode.ci=true -Pkotlin.incremental=false --parallel --no-build-cache --no-daemon --no-configuration-cache --exclude-task test
+
+    # - name: Manual build
+    #   if: inputs.build-mode == 'manual'
+    #   env:
+    #     ARTIFACTORY_USERNAME: ${{ env.BUILD_ARTIFACTORY_FND_CI_USERNAME }}
+    #     ARTIFACTORY_PASSWORD: ${{ env.BUILD_ARTIFACTORY_FND_CI_PASSWORD }}
+    #   uses: ./.github/actions/gradle
+    #   with:
+    #     time_out: 60
+    #     tasks: ${{ matrix.task }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ inputs.language }}"

@@ -1,0 +1,8 @@
+query-filters:
+  # long-running query (> 6 hours), GitHub is investigating
+  - exclude:
+      id: rb/clear-text-storage-sensitive-data
+
+paths-ignore:
+# ruby
+  - '**/spec/**'
