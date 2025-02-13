@@ -42,23 +42,8 @@ runs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-
-    - name: Get Artifactory secrets from AWS Secrets Manager
-      uses: aws-actions/aws-secretsmanager-get-secrets@v2.0.7
-      with:
-        parse-json-secrets: true
-        secret-ids: |
-          build/artifactory/fnd-ci
-
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
-      env:
-        ARTIFACTORY_USERNAME: ${{ env.BUILD_ARTIFACTORY_FND_CI_USERNAME }}
-        ARTIFACTORY_PASSWORD: ${{ env.BUILD_ARTIFACTORY_FND_CI_PASSWORD }}
       with:
         languages: ${{ inputs.language }}
         build-mode: ${{ inputs.build-mode }}
@@ -75,9 +60,6 @@ runs:
 
     - name: Manual build 
       if: inputs.build-mode == 'manual'
-      env:
-        ARTIFACTORY_USERNAME: ${{ env.BUILD_ARTIFACTORY_FND_CI_USERNAME }}
-        ARTIFACTORY_PASSWORD: ${{ env.BUILD_ARTIFACTORY_FND_CI_PASSWORD }}
       shell: bash
       run: |
         ./gradlew clean assembleDebug -Pgradle.mode.ci=true -Pkotlin.incremental=false --parallel --no-build-cache --no-daemon --no-configuration-cache --exclude-task test
