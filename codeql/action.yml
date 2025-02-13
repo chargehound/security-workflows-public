@@ -61,7 +61,7 @@ runs:
       if: inputs.build-mode == 'manual'
       shell: bash
       run: |
-        "{{ inputs.build-command }}"
+        '{{ inputs.build-command }}'
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
