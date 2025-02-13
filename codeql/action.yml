@@ -1,0 +1,69 @@
+name: 'CodeQL - Composite'
+description: 'Composite action for CodeQL'
+inputs:
+  language:
+    description: 'Language to analyze with CodeQL'
+    required: true
+    type: string
+  build-mode:
+    description: 'Build mode to compile language for analysis'
+    default: none
+    required: true
+    type: string
+  timeout-minutes:
+    description: 'Optional override for larger builds'
+    default: 20
+    required: false
+    type: number
+  build-command:
+    description: 'Optional application build command'
+    required: false
+    type: string
+  
+runs:
+  using: "composite"
+  steps:
+    - name: Validate Input (timeout-minutes)
+      if: ${{ inputs.timeout-minutes > 99 }}
+      shell: bash
+      run: |
+        echo "Invalid input (timeout-minutes), maximum value is 99"
+        exit 1
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      if: ${{ inputs.language == 'javascript-typescript' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ inputs.language }}
+        build-mode: ${{ inputs.build-mode }}
+        config: |
+          paths-ignore:
+            # venmo-platform
+            - '**/test_*.py'
+            # scope
+            - '**/test_*.js'
+            # webmo
+            - '**/*.test.ts'
+            - '**/*.test.tsx'
+            
+        # TODO: external-repository-token?
+        # config-file: chargehound/security-workflows/codeql/config/default.yml
+
+    - name: Manual build 
+      if: inputs.build-mode == 'manual'
+      shell: bash
+      run: |
+        {{ inputs.build-command }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ inputs.language }}"

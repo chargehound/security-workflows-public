@@ -1,2 +1,10 @@
-# security-workflows-public
-Repository for keeping shared security workflow files to scans public SDKs repositories
+# product-security
+
+
+Centralized GitHub action workflows to run the following GitHub Advanced Security scans:
+
+* Code Scanning (CodeQL)
+* Dependency Submission
+* Dependency Review
+
+

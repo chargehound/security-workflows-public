@@ -1,0 +1,30 @@
+name: CodeQL (Python)
+
+on:
+  workflow_call:
+    inputs:
+      timeout-minutes:
+        description: 'Optional override for larger builds'
+        default: 20
+        required: false
+        type: number
+      build-command:
+        description: 'Optional application build command'
+        required: false
+        type: string
+        
+jobs:
+  analyze:
+    name: Code Scanning - CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: chargehound/security-workflows-public/codeql@main
+        with:
+          language: python
+          build-mode: ${{ inputs.build-command != '' && 'manual' || 'none' }}
+          timeout-minutes: ${{ inputs.timeout-minutes }}
+          build-command: ${{ inputs.build-command }}

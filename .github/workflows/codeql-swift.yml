@@ -1,0 +1,37 @@
+name: CodeQL (Swift)
+
+on:
+  workflow_call:
+    inputs:
+      timeout-minutes:
+        description: 'Optional override for larger builds'
+        default: 20
+        required: false
+        type: number
+      build-command:
+        description: 'Optional application build command'
+        required: false
+        type: string
+        
+jobs:
+  analyze:
+    name: Code Scanning - CodeQL
+    runs-on: macos13
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    permissions:
+      security-events: write
+      # required to fetch internal or private CodeQL packs
+      packages: read
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: chargehound/security-workflows-public/codeql/action.yml@main
+        with:
+          language: swift
+          build-mode: ${{ inputs.build-command != '' && 'manual' || 'autobuild' }}
+          timeout-minutes: ${{ inputs.timeout-minutes }}
+          build-command: ${{ inputs.build-command }}
