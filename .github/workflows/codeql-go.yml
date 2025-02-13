@@ -12,6 +12,11 @@ on:
         description: 'Optional application build command'
         required: false
         type: string
+      build-mode:
+        description: 'Build mode to compile language for analysis'
+        default: none
+        required: true
+        type: string        
         
 jobs:
   analyze:
