@@ -46,7 +46,6 @@ runs:
         build-mode: ${{ inputs.build-mode }}
         config: |
           paths-ignore:
-            # venmo-platform
             - '**/test_*.py'
             # scope
             - '**/test_*.js'
@@ -54,8 +53,6 @@ runs:
             - '**/*.test.ts'
             - '**/*.test.tsx'
             
-        # TODO: external-repository-token?
-        # config-file: chargehound/security-workflows/codeql/config/default.yml
 
     - name: Manual build 
       if: inputs.build-mode == 'manual'

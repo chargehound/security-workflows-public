@@ -64,15 +64,6 @@ runs:
       run: |
         ./gradlew clean assembleDebug -Pgradle.mode.ci=true -Pkotlin.incremental=false --parallel --no-build-cache --no-daemon --no-configuration-cache --exclude-task test
 
-    # - name: Manual build
-    #   if: inputs.build-mode == 'manual'
-    #   env:
-    #     ARTIFACTORY_USERNAME: ${{ env.BUILD_ARTIFACTORY_FND_CI_USERNAME }}
-    #     ARTIFACTORY_PASSWORD: ${{ env.BUILD_ARTIFACTORY_FND_CI_PASSWORD }}
-    #   uses: ./.github/actions/gradle
-    #   with:
-    #     time_out: 60
-    #     tasks: ${{ matrix.task }}
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
