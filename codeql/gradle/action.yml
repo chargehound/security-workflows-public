@@ -39,9 +39,6 @@ runs:
         distribution: temurin
         java-version: 17
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
