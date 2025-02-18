@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: chargehound/security-workflows-public/codeql@main
         with:
-          language: go
+          language: java
           build-mode: ${{ inputs.build-command != '' && 'manual' || 'none' }}
           timeout-minutes: ${{ inputs.timeout-minutes }}
           build-command: ${{ inputs.build-command }}
