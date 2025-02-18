@@ -1,4 +1,4 @@
-name: CodeQL (Swift)
+name: CodeQL (Java)
 
 on:
   workflow_call:
@@ -12,26 +12,24 @@ on:
         description: 'Optional application build command'
         required: false
         type: string
+      build-mode:
+        description: 'Build mode to compile language for analysis'
+        default: none
+        required: true
+        type: string        
         
 jobs:
   analyze:
     name: Code Scanning - CodeQL
-    runs-on: macos13
+    runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
-    permissions:
-      security-events: write
-      # required to fetch internal or private CodeQL packs
-      packages: read
-      # only required for workflows in private repositories
-      actions: read
-      contents: read
     strategy:
       fail-fast: false
 
     steps:
-      - uses: chargehound/security-workflows-public/codeql/action.yml@main
+      - uses: chargehound/security-workflows-public/codeql@main
         with:
-          language: swift
-          build-mode: ${{ inputs.build-command != '' && 'manual' || 'autobuild' }}
+          language: java
+          build-mode: ${{ inputs.build-command != '' && 'manual' || 'none' }}
           timeout-minutes: ${{ inputs.timeout-minutes }}
           build-command: ${{ inputs.build-command }}
