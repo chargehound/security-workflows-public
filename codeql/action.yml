@@ -39,6 +39,11 @@ runs:
       with:
         node-version: latest
 
+
+    - name: setup gradle wrapper if language is chosen as Java
+      if: ${{ inputs.language == 'java' }}
+      uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b        
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
