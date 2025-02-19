@@ -16,7 +16,12 @@ on:
         description: 'Build mode to compile language for analysis'
         default: none
         required: true
-        type: string        
+        type: string      
+      java-version:
+        description: 'java version number'
+        default: none
+        required: true
+        type: string             
         
 jobs:
   analyze:
@@ -27,6 +32,14 @@ jobs:
       fail-fast: false
 
     steps:
+      - uses: actions/setup-java@v2
+        with:
+          java-version: '${{ inputs.java-version }}'
+          distribution: 'adopt'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Run the Gradle tests
+        run: ./gradlew test
       - uses: chargehound/security-workflows-public/codeql@main
         with:
           language: java
