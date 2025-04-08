@@ -86,6 +86,10 @@ runs:
             sarif_file="ruby.sarif"  
           elif [[ "${{ inputs.language }}" == "swift" ]]; then
             sarif_file="swift.sarif"  
+          elif [[ "${{ inputs.language }}" == "go" ]]; then
+            sarif_file="go.sarif"  
+          elif [[ "${{ inputs.language }}" == "java" ]]; then
+            sarif_file="java.sarif"              
           else
             sarif_file="${{ inputs.language }}.sarif"        
           fi
