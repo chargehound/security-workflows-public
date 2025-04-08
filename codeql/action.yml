@@ -69,3 +69,45 @@ runs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{ inputs.language }}"
+        output: sarif-results
+        upload: failure-only  
+
+    - name: Set SARIF file
+      shell: bash
+      run: |
+        sarif_file="${{ inputs.language }}.sarif"
+        if [[ "${{ inputs.language }}" == "javascript-typescript" ]]; then
+            sarif_file="javascript.sarif"
+          elif [[ "${{ inputs.language }}" == "python" ]]; then
+            sarif_file="python.sarif"  
+          elif [[ "${{ inputs.language }}" == "java-kotlin" ]]; then
+            sarif_file="kotlin.sarif"  
+          elif [[ "${{ inputs.language }}" == "ruby" ]]; then
+            sarif_file="ruby.sarif"  
+          elif [[ "${{ inputs.language }}" == "swift" ]]; then
+            sarif_file="swift.sarif"  
+          elif [[ "${{ inputs.language }}" == "go" ]]; then
+            sarif_file="go.sarif"  
+          elif [[ "${{ inputs.language }}" == "java" ]]; then
+            sarif_file="java.sarif"              
+          else
+            sarif_file="${{ inputs.language }}.sarif"        
+          fi
+
+        echo "SARIF_FILE=${sarif_file}" >> $GITHUB_ENV    
+
+    - name: Filter SARIF
+      uses: advanced-security/filter-sarif@v1
+      with:
+        patterns: |
+          - **/*:*/hardcoded-credentials
+          - **/*:*/disabling-certificate-validation
+          - **/*:*/missing-rate-limiting
+          - **/*:py/request-without-cert-validation
+        input: sarif-results/${{ env.SARIF_FILE }}
+        output: sarif-results/${{ env.SARIF_FILE }}
+
+    - name: Upload SARIF
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: sarif-results/${{ env.SARIF_FILE }}     
