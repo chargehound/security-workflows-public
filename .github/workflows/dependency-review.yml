@@ -15,8 +15,7 @@ permissions:
 
 jobs:
   dependency-review:
-    name: Dependency Review
-    if: ${{ github.event_name == 'pull_request' }}
+    name: Dependency Review and Dependency Graph Submission
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
 
@@ -31,7 +30,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
   
-      - name: Dependency Review       
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@v4
+
+      - name: Dependency Review 
+        if: ${{ github.event_name == 'pull_request' }}      
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: critical
