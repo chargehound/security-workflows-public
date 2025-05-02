@@ -31,7 +31,7 @@ jobs:
 
       - name: Generate Dependency Report
         if: ${{ github.repository == 'chargehound/chargehound-java' }}
-        uses: chargehound/security-workflows-public/.github/actions/manual-gradle-submission@test-gradle-4
+        uses: chargehound/security-workflows-public/.github/actions/manual-gradle-submission@test-gradle-submission
         with:
           gradle-task: generateDependencyReport
 
