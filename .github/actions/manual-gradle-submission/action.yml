@@ -1,0 +1,82 @@
+name: Manual Gradle Dependency Submission
+description: Gradle Dependency Submission for Unsupported Versions
+
+inputs:
+  gradle_task:
+    required: true
+    description: Gradle task to generate dependencies
+
+runs:
+  using: composite
+  steps:
+    - name: Generate Dependency Report
+      shell: bash
+      run: ./gradlew ${{ inputs.gradle_task }}
+
+    - name: Set up Python
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+      with:
+        python-version: '3.x'
+
+    - name: Parse Report and Generate JSON
+      shell: bash
+      run: |
+        scripts_path="${{ github.action_path }}/../../../scripts"
+        python3 ${scripts_path}/parse_dependencies.py
+      
+    - name: Upload Dependency Graph
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: dependency-graph
+        path: build/dependency-graph.json
+      
+    - name: Submit Dependency Graph
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const dependencyGraphFile = 'build/dependency-graph.json';
+          const dependencyGraph = fs.readFileSync(path.resolve(dependencyGraphFile), 'utf8');
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          const commitSha = context.sha;
+          const ref = context.ref;
+          const jobName = context.job;
+          console.log("Submitting Dependency Graph");
+          console.log(`Owner: ${owner}`);
+          console.log(`Repo: ${repo}`);
+          console.log(`Commit Sha: ${commitSha}`);
+          console.log(`Ref: ${ref}`);
+          console.log(`Job Name: ${jobName}`);
+          console.log(`Dependency Graph: ${dependencyGraph}`);
+          await github.request('POST /repos/{owner}/{repo}/dependency-graph/snapshots', {
+            owner: owner,
+            repo: repo,
+            headers: {
+              accept: 'application/vnd.github.dependency-graph-previewjson'
+            },
+            data: {
+              version: 0,
+              job: {
+                  id: context.runId.toString(),
+                  correlator: jobName,
+              },
+              ref: ref,
+              sha: commitSha,
+              detector: {
+                name: "custom-dependency-extractor",
+                version: "0.0.1",
+                url: "https://github.com/chargehound/security-workflows-public",
+              },
+              manifests: {
+                "gradle-dependencies": {
+                  file: {
+                    source_location: "build/dependency-graph.json",
+                  },
+                  metadata: {},
+                  dependencies: JSON.parse(dependencyGraph).dependencies,
+                }
+              }
+            }
+          });

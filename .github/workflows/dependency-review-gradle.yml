@@ -1,0 +1,49 @@
+name: Dependency Review
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: 'Optional Java version number'
+        required: false
+        default: 17
+        type: number
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: adopt
+
+      - name: Generate Dependency Report
+        if: ${{ github.repository == 'chargehound/chargehound-java' }}
+        uses: chargehound/security-workflows-public/.github/actions/manual-gradle-submission@test-gradle-4
+        with:
+          gradle-task: generateDependencyReport
+
+      - name: Generate and submit dependency graph
+        if: ${{ github.repository != 'chargehound/chargehound-java' }}
+        uses: gradle/actions/dependency-submission@06832c7b30a0129d7fb559bcc6e43d26f6374244
+
+      - name: Dependency Review
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/dependency-review-action@67d4f4bd7a9b17a0db54d2a7519187c65e339de8
+        with:
+          fail-on-severity: critical
+          fail-on-scopes: runtime
+          comment-summary-in-pr: always
+          show-openssf-scorecard: false
