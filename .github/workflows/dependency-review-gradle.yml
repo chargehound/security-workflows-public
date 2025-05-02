@@ -33,7 +33,7 @@ jobs:
         if: ${{ github.repository == 'chargehound/chargehound-java' }}
         uses: chargehound/security-workflows-public/.github/actions/manual-gradle-submission@test-gradle-submission
         with:
-          gradle-task: generateDependencyReport
+          gradle_task: generateDependencyReport
 
       - name: Generate and submit dependency graph
         if: ${{ github.repository != 'chargehound/chargehound-java' }}
