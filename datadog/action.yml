@@ -1,0 +1,64 @@
+name: "DataDog"
+description: Submit DataDog metrics
+
+inputs:
+    SOURCE:
+      description: 'CodeQL / Dependabot' 
+      required: true
+      type: string
+    BU_NAME:
+      description: 'The name of the Bussiness Unit'
+      required: true
+      type: string
+    DATADOG_API_KEY:
+      description: 'DATADOG API KEY'
+      required: true
+      type: string
+    start_time:
+      description: 'Workflow start time'
+      required: false
+      type: number
+    OUTCOME:
+      description: 'The outcome of codeql/dependabot step'
+      required: false
+      type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Calculate duration
+      run: echo "DURATION=$(( $(date +%s) - start_time ))" >> $GITHUB_ENV
+      shell: bash
+
+    - name: check STATUS
+      run: |
+        if [ "${{ job.status }}" != "success" ]; then
+          echo "status=${{ job.status }}" >> $GITHUB_ENV
+        elif [ "${{ inputs.OUTCOME }}" != "success" ]; then
+          echo "status=failure" >> $GITHUB_ENV
+        else
+          echo "status=success" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Duration - Submit to DataDog
+      uses: chargehound/security-workflows-public/datadog/dd_submit@main
+      with:
+        DATADOG_API_KEY: ${{ inputs.DATADOG_API_KEY }}
+        METRIC_NAME: pp.prodsec.ghas.duration
+        SOURCE: ${{ inputs.SOURCE }}
+        STATUS: ${{ env.status }}
+        METRIC_VALUE: ${{ env.DURATION }}
+        BU_NAME: ${{ inputs.BU_NAME }}
+        METRIC_TYPE: 3
+
+    - name: Count - Submit to DataDog
+      uses: chargehound/security-workflows-public/datadog/dd_submit@main
+      with:
+        DATADOG_API_KEY: ${{ inputs.DATADOG_API_KEY }}
+        METRIC_NAME: pp.prodsec.ghas
+        SOURCE: ${{ inputs.SOURCE }}
+        STATUS: ${{ env.status }}
+        BU_NAME: ${{ inputs.BU_NAME }}
+        METRIC_VALUE: 1
+        METRIC_TYPE: 1

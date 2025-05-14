@@ -21,7 +21,10 @@ on:
         description: 'java version number'
         default: none
         required: true
-        type: string             
+        type: string   
+    secrets:
+      DATADOG_API_KEY:
+        required: false                       
         
 jobs:
   analyze:
@@ -43,3 +46,4 @@ jobs:
           build-mode: ${{ inputs.build-command != '' && 'manual' || 'none' }}
           timeout-minutes: ${{ inputs.timeout-minutes }}
           build-command: ${{ inputs.build-command }}
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}            
