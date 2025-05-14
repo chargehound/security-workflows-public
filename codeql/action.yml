@@ -47,7 +47,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: latest
-        
+
     - name: setup gradle wrapper if language is chosen as Java
       if: ${{ inputs.language == 'java' }}
       uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b            
@@ -74,7 +74,7 @@ runs:
       if: inputs.build-mode == 'manual'
       shell: bash
       run: |
-        {{ inputs.build-command }}
+        ${{ inputs.build-command }}
 
     - name: Perform CodeQL Analysis
       id: codeql
