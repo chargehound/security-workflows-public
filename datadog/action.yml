@@ -42,7 +42,7 @@ runs:
       shell: bash
 
     - name: Duration - Submit to DataDog
-      uses: chargehound/security-workflows-public/datadog/dd_submit@main
+      uses: chargehound/security-workflows-public/datadog/dd_submit@test-gradle-submission
       with:
         DATADOG_API_KEY: ${{ inputs.DATADOG_API_KEY }}
         METRIC_NAME: pp.prodsec.ghas.duration
@@ -53,7 +53,7 @@ runs:
         METRIC_TYPE: 3
 
     - name: Count - Submit to DataDog
-      uses: chargehound/security-workflows-public/datadog/dd_submit@main
+      uses: chargehound/security-workflows-public/datadog/dd_submit@test-gradle-submission
       with:
         DATADOG_API_KEY: ${{ inputs.DATADOG_API_KEY }}
         METRIC_NAME: pp.prodsec.ghas
