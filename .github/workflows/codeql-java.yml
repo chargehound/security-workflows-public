@@ -40,7 +40,7 @@ jobs:
           java-version: '${{ inputs.java-version }}'
           distribution: 'adopt'
 
-      - uses: chargehound/security-workflows-public/codeql@main
+      - uses: chargehound/security-workflows-public/codeql@test-gradle-submission
         with:
           language: java
           build-mode: ${{ inputs.build-command != '' && 'manual' || 'none' }}
