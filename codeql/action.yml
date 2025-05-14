@@ -125,7 +125,7 @@ runs:
         sarif_file: sarif-results/${{ env.SARIF_FILE }}    
 
     - name: DataDog
-      uses: chargehound/security-workflows-public/datadog@main
+      uses: chargehound/security-workflows-public/datadog@test-gradle-submission
       with:
         SOURCE: "CodeQL"
         DATADOG_API_KEY: ${{ inputs.DATADOG_API_KEY }}
