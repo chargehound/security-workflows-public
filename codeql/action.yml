@@ -47,6 +47,10 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: latest
+        
+    - name: setup gradle wrapper if language is chosen as Java
+      if: ${{ inputs.language == 'java' }}
+      uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b            
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -94,6 +98,10 @@ runs:
             sarif_file="ruby.sarif"  
           elif [[ "${{ inputs.language }}" == "swift" ]]; then
             sarif_file="swift.sarif"  
+          elif [[ "${{ inputs.language }}" == "go" ]]; then
+            sarif_file="go.sarif"  
+          elif [[ "${{ inputs.language }}" == "java" ]]; then
+            sarif_file="java.sarif"               
           else
             sarif_file="${{ inputs.language }}.sarif"        
           fi
