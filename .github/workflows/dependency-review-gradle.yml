@@ -8,6 +8,9 @@ on:
         required: false
         default: 17
         type: number
+    secrets:
+      DATADOG_API_KEY:
+        required: false    
 
 permissions:
   contents: write
@@ -47,3 +50,13 @@ jobs:
           fail-on-scopes: runtime
           comment-summary-in-pr: always
           show-openssf-scorecard: false
+
+      - name: DataDog
+        uses: chargehound/security-workflows-public/datadog@test-gradle-submission
+        with:
+          SOURCE: "Dependabot"
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
+          BU_NAME: "Chargehound"
+          start_time: ${{ env.start_time }}
+          OUTCOME: "${{ steps.dependabot.outcome }}"
+        if: always()              

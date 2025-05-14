@@ -45,7 +45,7 @@ jobs:
           warn-only: true
 
       - name: DataDog
-        uses: chargehound/security-workflows-public/datadog@main
+        uses: chargehound/security-workflows-public/datadog@test-gradle-submission
         with:
           SOURCE: "Dependabot"
           DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
