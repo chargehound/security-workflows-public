@@ -12,6 +12,9 @@ on:
         description: 'Optional application build command'
         required: false
         type: string
+    secrets:
+      DATADOG_API_KEY:
+        required: false               
         
 jobs:
   analyze:
@@ -28,3 +31,4 @@ jobs:
           build-mode: ${{ inputs.build-command != '' && 'manual' || 'autobuild' }}
           timeout-minutes: ${{ inputs.timeout-minutes }}
           build-command: ${{ inputs.build-command }}
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}            
