@@ -8,6 +8,9 @@ on:
         default: 20
         required: false
         type: number
+    secrets:
+      DATADOG_API_KEY:
+        required: false            
 
 permissions:
   contents: write
