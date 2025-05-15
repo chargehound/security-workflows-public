@@ -19,10 +19,19 @@ inputs:
     description: 'Optional application build command'
     required: false
     type: string
+  DATADOG_API_KEY:
+    description: 'DATADOG API KEY'
+    required: true
+    type: string  
+
   
 runs:
   using: "composite"
   steps:
+    - name: Capture start time
+      run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
+      shell: bash
+
     - name: Validate Input (timeout-minutes)
       if: ${{ inputs.timeout-minutes > 99 }}
       shell: bash
@@ -39,10 +48,9 @@ runs:
       with:
         node-version: latest
 
-
     - name: setup gradle wrapper if language is chosen as Java
       if: ${{ inputs.language == 'java' }}
-      uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b        
+      uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b            
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -51,6 +59,7 @@ runs:
         build-mode: ${{ inputs.build-mode }}
         config: |
           paths-ignore:
+            # venmo-platform
             - '**/test_*.py'
             # scope
             - '**/test_*.js'
@@ -58,6 +67,8 @@ runs:
             - '**/*.test.ts'
             - '**/*.test.tsx'
             
+        # TODO: external-repository-token?
+        # config-file: chargehound/security-workflows/codeql/config/default.yml
 
     - name: Manual build 
       if: inputs.build-mode == 'manual'
@@ -66,6 +77,7 @@ runs:
         ${{ inputs.build-command }}
 
     - name: Perform CodeQL Analysis
+      id: codeql
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{ inputs.language }}"
@@ -89,7 +101,7 @@ runs:
           elif [[ "${{ inputs.language }}" == "go" ]]; then
             sarif_file="go.sarif"  
           elif [[ "${{ inputs.language }}" == "java" ]]; then
-            sarif_file="java.sarif"              
+            sarif_file="java.sarif"               
           else
             sarif_file="${{ inputs.language }}.sarif"        
           fi
@@ -110,4 +122,16 @@ runs:
     - name: Upload SARIF
       uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: sarif-results/${{ env.SARIF_FILE }}     
+        sarif_file: sarif-results/${{ env.SARIF_FILE }}    
+
+    - name: DataDog
+      uses: chargehound/security-workflows-public/datadog@test-gradle-submission
+      with:
+        SOURCE: "CodeQL"
+        DATADOG_API_KEY: ${{ inputs.DATADOG_API_KEY }}
+        BU_NAME: "Chargehound"
+        start_time: ${{ env.start_time }}
+        OUTCOME: "${{ steps.codeql.outcome }}"
+      #secrets:
+      #  DATADOG_API_KEY: ${{ secrets.DATADOG_PAYPAL_QA_TOKEN }}        
+      if: always()

@@ -21,7 +21,10 @@ on:
         description: 'java version number'
         default: none
         required: true
-        type: string             
+        type: string   
+    secrets:
+      DATADOG_API_KEY:
+        required: false                       
         
 jobs:
   analyze:
@@ -37,9 +40,10 @@ jobs:
           java-version: '${{ inputs.java-version }}'
           distribution: 'adopt'
 
-      - uses: chargehound/security-workflows-public/codeql@main
+      - uses: chargehound/security-workflows-public/codeql@test-gradle-submission
         with:
           language: java
           build-mode: ${{ inputs.build-command != '' && 'manual' || 'none' }}
           timeout-minutes: ${{ inputs.timeout-minutes }}
           build-command: ${{ inputs.build-command }}
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}            
