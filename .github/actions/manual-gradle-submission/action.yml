@@ -69,6 +69,7 @@ runs:
                 version: "0.0.1",
                 url: "https://github.com/chargehound/security-workflows-public",
               },
+              scanned: datetime.utcnow().isoformat() + "Z",
               manifests: {
                 "gradle-dependencies": {
                   file: {
