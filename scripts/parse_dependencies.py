@@ -78,5 +78,5 @@ def generate_dependency_snapshot(input_file, output_file):
 
 # Example usage
 input_file = 'build/dependency-report.txt'  # Input file path
-output_file = 'build/dependency-snapshot.json'  # Output file path
+output_file = 'build/dependency-graph.json'  # Output file path
 generate_dependency_snapshot(input_file, output_file)
