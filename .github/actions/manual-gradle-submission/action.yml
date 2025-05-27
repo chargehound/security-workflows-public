@@ -72,6 +72,7 @@ runs:
               scanned: new Date().toISOString(),
               manifests: {
                 "gradle-dependencies": {
+                  name: "gradle-dependencies",
                   file: {
                     source_location: "build/dependency-graph.json",
                   },
