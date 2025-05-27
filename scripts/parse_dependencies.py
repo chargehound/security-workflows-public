@@ -1,64 +1,82 @@
 import json
+import traceback
+from datetime import datetime
 
-
-def parse_dependency_report(filepath):
-    """Parses the dependency report file and returns a list of dependencies."""
-    dependencies = []
-    current_configuration = None
+def parse_dependency_report(file_path):
     try:
-      with open(filepath, 'r') as f:
-          for line in f:
-              line = line.strip()
-              if line.startswith("Configuration:"):
-                  current_configuration = line.split(": ")[1]
-              elif line.startswith("-"):
-                  parts = line.split(":")
-                  group = parts[0].split(" ")[-1].strip()
-                  name = parts[1].strip()
-                  version = parts[2].strip()
-                  dependencies.append({
-                      "configuration": current_configuration,
-                      "group": group,
-                      "name": name,
-                      "version": version
-                  })
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        manifests = {}
+        current_manifest = None
+
+        for line in lines:
+            line = line.strip()
+
+            # Identify new manifest sections based on headers
+            if line.startswith('Manifest:'):
+                manifest_name = line.replace('Manifest:', '').strip()
+                current_manifest = {
+                    "name": manifest_name,
+                    "file": {
+                        "source_location": "build/dependency-graph.json"
+                    },
+                    "resolved": {}
+                }
+                manifests[manifest_name] = current_manifest
+
+            # Parse dependency lines in format group:artifact:version
+            elif current_manifest and line.startswith("- "):
+                dependency = line[2:]  # Remove leading "- "
+                try:
+                    group, artifact, version = dependency.split(":")
+                    key = f"- {group}:{artifact}:{version}"
+                    package_url = f"pkg:maven/{group}/{artifact}@{version}"
+                    current_manifest["resolved"][key] = {
+                        "package_url": package_url,
+                        "relationship": "direct",
+                        "scope": "development"
+                    }
+                except ValueError:
+                    # Handle parsing errors for dependency lines
+                    print(f"Error parsing dependency line: {line}")
+
+        # Construct the final JSON structure
+        dependency_snapshot = {
+            "version": 0,
+            "sha": "991a3490e97761f1c6c89e9304e90a57a2f36ea2",  # Replace with actual commit SHA
+            "ref": "refs/heads/main",  # Replace with actual ref
+            "job": {
+                "id": "fumm",
+                "correlator": "example-job-id",  # Replace with actual job correlator
+                "html_url": "http://example.com/job"  # Replace with actual job URL
+            },
+            "detector": {
+                "name": "custom-detector",
+                "version": "1.0.0",
+                "url": "https://github.com/your-organization/gradle-dependency-extractor"
+            },
+            "scanned": datetime.utcnow().isoformat() + "Z",  # Current UTC timestamp
+            "manifests": manifests
+        }
+
+        return dependency_snapshot
+
     except FileNotFoundError:
-      print(f"File Not Found at: {filepath}")
-      return None
-    return dependencies
+        print(f"Error: File '{file_path}' not found.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        traceback.print_exc()
 
+# Write the generated JSON output to a file
+def generate_dependency_snapshot(input_file, output_file):
+    snapshot = parse_dependency_report(input_file)
+    if snapshot:
+        with open(output_file, 'w') as file:
+            json.dump(snapshot, file, indent=2)
+        print(f"Dependency snapshot successfully generated in '{output_file}'")
 
-def create_dependency_graph_json(dependencies):
-    """Formats the dependencies into the JSON structure for GitHub dependency graph."""
-    if dependencies is None:
-        return None
-    graph_dependencies = []
-    for dep in dependencies:
-        graph_dependencies.append({
-            "packageName": f"{dep['group']}:{dep['name']}",
-            "version": dep['version'],
-            "relationship": "direct",  # For now, assume all are direct
-            "scope": dep['configuration']
-        })
-    return json.dumps({
-        "version": 0,
-        "metadata": {},
-        "dependencies": graph_dependencies
-    }, indent=2)
-
-
-def main():
-    """Main function to parse the report and generate the JSON."""
-    report_filepath = "build/dependency-report.txt"
-    dependencies = parse_dependency_report(report_filepath)
-    json_output = create_dependency_graph_json(dependencies)
-    if json_output is not None:
-      print(json_output)
-      output_filepath = "build/dependency-graph.json"
-      with open(output_filepath, 'w') as outfile:
-          outfile.write(json_output)
-      print(f"Dependency graph JSON generated: {output_filepath}")
-
-
-if __name__ == "__main__":
-    main()
+# Example usage
+input_file = 'build/dependency-report.txt'  # Input file path
+output_file = 'build/dependency-snapshot.json'  # Output file path
+generate_dependency_snapshot(input_file, output_file)
