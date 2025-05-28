@@ -1,5 +1,6 @@
 import json
 import traceback
+import os
 from datetime import datetime
 
 def parse_dependency_report(file_path):
