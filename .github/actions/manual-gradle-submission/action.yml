@@ -82,3 +82,4 @@ runs:
               }
             }
           });
+          core.info(`Submitted dependency graph: ${response.status}`);
