@@ -39,7 +39,7 @@ jobs:
           gradle_task: generateDependencyReport
 
       - name: Generate and submit dependency graph
-        if: ${{ github.repository != 'chargehound/chargehound-java' }}
+        if: ${{ github.repository == 'chargehound/chargehound-java' }}
         uses: gradle/actions/dependency-submission@06832c7b30a0129d7fb559bcc6e43d26f6374244
 
       - name: Dependency Review
