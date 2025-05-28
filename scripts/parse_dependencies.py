@@ -42,19 +42,25 @@ def parse_dependency_report(file_path):
                     print(f"Error parsing dependency line: {line}")
 
         # Construct the final JSON structure
+        commit_sha = os.environ.get("GITHUB_SHA")
+        git_ref = os.environ.get("GITHUB_REF")
+        run_id = os.environ.get("GITHUB_RUN_ID")
+        repo = os.environ["GITHUB_REPOSITORY"]
+        url = f"https://github.com/{repo}/actions/runs/{run_id}"
+
         dependency_snapshot = {
             "version": 0,
-            "sha": "991a3490e97761f1c6c89e9304e90a57a2f36ea2",  # Replace with actual commit SHA
-            "ref": "refs/heads/main",  # Replace with actual ref
+            "sha": commit_sha,  # Replace with actual commit SHA
+            "ref": git_ref,  # Replace with actual ref
             "job": {
-                "id": "fumm",
-                "correlator": "example-job-id",  # Replace with actual job correlator
-                "html_url": "http://example.com/job"  # Replace with actual job URL
+                "id": run_id,
+                "correlator": "prodsec-team-job",  # Replace with actual job correlator
+                "html_url": url  # Replace with actual job URL
             },
             "detector": {
-                "name": "custom-detector",
+                "name": "prodsec-dependabot-scan",
                 "version": "1.0.0",
-                "url": "https://github.com/your-organization/gradle-dependency-extractor"
+                "url": url
             },
             "scanned": datetime.utcnow().isoformat() + "Z",  # Current UTC timestamp
             "manifests": manifests
