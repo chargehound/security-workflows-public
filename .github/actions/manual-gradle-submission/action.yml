@@ -45,13 +45,19 @@ runs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const commitSha = context.sha;
-            let ref;
+            let branch;
 
             if (context.eventName === 'pull_request') {
-                ref = context.payload.pull_request.head.ref; // Actual branch from the PR
+            branch = context.payload.pull_request.head.ref; // e.g. 'feature/ghas_integration'
             } else {
-              ref = context.ref.replace('refs/heads/', ''); // Extract branch from push ref
+            branch = context.ref.replace('refs/heads/', ''); // remove prefix if needed
             }
+
+            const fullRef = `refs/heads/${branch}`; // ✅ API-compatible ref
+
+            console.log(`Ref to send in API: ${fullRef}`);
+            }
+
             const jobName = context.job;
 
             console.log("Submitting Dependency Graph");
