@@ -44,20 +44,27 @@ runs:
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            
             const commitSha = context.sha;
+            let commit
             let branch;
 
             if (context.eventName === 'pull_request') 
               {
               branch = context.payload.pull_request.head.ref; // e.g. 'feature/ghas_integration'
+              commit = context.payload.pull_request.head.sha;
               } 
             else 
               {
               branch = context.ref.replace('refs/heads/', ''); // remove prefix if needed
+              commit = context.sha;
               }
 
             const ref = `refs/heads/${branch}`; // ✅ API-compatible ref
+            const commitSha = ${commit};
+            
             console.log(`Ref to send in API: ${ref}`);
+            console.log(`Commit SHA to use: ${commitSha}`);
 
             const jobName = context.job;
 
