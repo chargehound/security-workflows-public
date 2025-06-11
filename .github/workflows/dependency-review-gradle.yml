@@ -50,6 +50,8 @@ jobs:
           fail-on-scopes: runtime
           comment-summary-in-pr: always
           show-openssf-scorecard: false
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 120
 
       - name: DataDog
         uses: chargehound/security-workflows-public/datadog@test-gradle-submission
