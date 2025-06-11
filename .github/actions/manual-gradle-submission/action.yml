@@ -60,7 +60,7 @@ runs:
               }
 
             const ref = `refs/heads/${branch}`; // ✅ API-compatible ref
-            const commitSha = ${commit};
+            const commitSha = commit;
 
             console.log(`Ref to send in API: ${ref}`);
             console.log(`Commit SHA to use: ${commitSha}`);
