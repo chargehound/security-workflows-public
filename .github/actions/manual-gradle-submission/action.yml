@@ -56,8 +56,8 @@ runs:
               branch = context.ref.replace('refs/heads/', ''); // remove prefix if needed
               }
 
-            const fullRef = `refs/heads/${branch}`; // ✅ API-compatible ref
-            console.log(`Ref to send in API: ${fullRef}`);
+            const ref = `refs/heads/${branch}`; // ✅ API-compatible ref
+            console.log(`Ref to send in API: ${ref}`);
 
             const jobName = context.job;
 
