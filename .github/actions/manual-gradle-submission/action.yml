@@ -45,7 +45,7 @@ runs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             
-            let commit
+            let commit;
             let branch;
 
             if (context.eventName === 'pull_request') 
