@@ -45,7 +45,13 @@ runs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const commitSha = context.sha;
-            const ref = context.ref;
+            let ref;
+
+            if (context.eventName === 'pull_request') {
+                ref = context.payload.pull_request.head.ref; // Actual branch from the PR
+            } else {
+              ref = context.ref.replace('refs/heads/', ''); // Extract branch from push ref
+            }
             const jobName = context.job;
 
             console.log("Submitting Dependency Graph");
