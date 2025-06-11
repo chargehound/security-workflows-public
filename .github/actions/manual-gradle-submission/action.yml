@@ -45,7 +45,7 @@ runs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const commitSha = context.sha;
-            const ref = refs/heads/{branch};
+            const ref = context.ref;
             const jobName = context.job;
 
             console.log("Submitting Dependency Graph");
