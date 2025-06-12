@@ -35,6 +35,10 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Capture start time
+        run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
+        shell: bash
+            
       - uses: actions/setup-java@v2
         with:
           java-version: '${{ inputs.java-version }}'

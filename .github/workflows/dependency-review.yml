@@ -27,6 +27,10 @@ jobs:
           echo "Invalid input (timeout-minutes), maximum value is 99"
           exit 1
 
+      - name: Capture start time
+        run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
+        shell: bash
+        
       - name: Checkout Repository
         uses: actions/checkout@v4
   
