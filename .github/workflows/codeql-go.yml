@@ -30,6 +30,10 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Capture start time
+        run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
+        shell: bash
+            
       - uses: chargehound/security-workflows-public/codeql@main
         with:
           language: go

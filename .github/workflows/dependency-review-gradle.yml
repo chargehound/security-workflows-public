@@ -23,6 +23,10 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      - name: Capture start time
+        run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
+        shell: bash
+            
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
@@ -38,9 +42,9 @@ jobs:
         with:
           gradle_task: generateDependencyReport
 
-      - name: Generate and submit dependency graph
-        if: ${{ github.repository != 'chargehound/chargehound-java' }}
-        uses: gradle/actions/dependency-submission@06832c7b30a0129d7fb559bcc6e43d26f6374244
+#     - name: Generate and submit dependency graph
+#        if: ${{ github.repository == 'chargehound/chargehound-java' }}
+#        uses: gradle/actions/dependency-submission@06832c7b30a0129d7fb559bcc6e43d26f6374244
 
       - name: Dependency Review
         if: ${{ github.event_name == 'pull_request' }}
@@ -50,6 +54,8 @@ jobs:
           fail-on-scopes: runtime
           comment-summary-in-pr: always
           show-openssf-scorecard: false
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 600
 
       - name: DataDog
         uses: chargehound/security-workflows-public/datadog@test-gradle-submission

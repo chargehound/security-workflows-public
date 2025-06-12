@@ -36,47 +36,85 @@ runs:
         script: |
           const fs = require('fs');
           const path = require('path');
-          const dependencyGraphFile = 'build/dependency-graph.json';
-          const dependencyGraph = fs.readFileSync(path.resolve(dependencyGraphFile), 'utf8');
-          const owner = context.repo.owner;
-          const repo = context.repo.repo;
-          const commitSha = context.sha;
-          const ref = context.ref;
-          const jobName = context.job;
-          console.log("Submitting Dependency Graph");
-          console.log(`Owner: ${owner}`);
-          console.log(`Repo: ${repo}`);
-          console.log(`Commit Sha: ${commitSha}`);
-          console.log(`Ref: ${ref}`);
-          console.log(`Job Name: ${jobName}`);
-          console.log(`Dependency Graph: ${dependencyGraph}`);
-          await github.request('POST /repos/{owner}/{repo}/dependency-graph/snapshots', {
+
+          try {
+            const dependencyGraphFile = 'build/dependency-graph.json';
+            const dependencyGraphRaw = fs.readFileSync(path.resolve(dependencyGraphFile), 'utf8');
+            const dependencyGraph = JSON.parse(dependencyGraphRaw);
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            let commit;
+            let branch;
+
+            if (context.eventName === 'pull_request') 
+              {
+              branch = context.payload.pull_request.head.ref; // e.g. 'feature/ghas_integration'
+              commit = context.payload.pull_request.head.sha;
+              } 
+            else 
+              {
+              branch = context.ref.replace('refs/heads/', ''); // remove prefix if needed
+              commit = context.sha;
+              }
+
+            const ref = `refs/heads/${branch}`; // ✅ API-compatible ref
+            const commitSha = commit;
+
+            console.log(`Ref to send in API: ${ref}`);
+            console.log(`Commit SHA to use: ${commitSha}`);
+
+            const jobName = context.job;
+
+            console.log("Submitting Dependency Graph");
+            console.log(`Owner: ${owner}`);
+            console.log(`Repo: ${repo}`);
+            console.log(`Commit Sha: ${commitSha}`);
+            console.log(`Ref: ${ref}`);
+            console.log(`Job Name: ${jobName}`);
+
+            const response = await github.request('POST /repos/{owner}/{repo}/dependency-graph/snapshots', {
             owner: owner,
             repo: repo,
             headers: {
-              accept: 'application/vnd.github.dependency-graph-previewjson'
+              accept: 'application/vnd.github+json'
             },
             data: {
               version: 0,
               job: {
-                  id: context.runId.toString(),
-                  correlator: jobName,
+                id: context.runId.toString(),
+                correlator: jobName
               },
               ref: ref,
               sha: commitSha,
               detector: {
                 name: "custom-dependency-extractor",
                 version: "0.0.1",
-                url: "https://github.com/chargehound/security-workflows-public",
+                url: "https://github.com/ss/security-s-public"
               },
+              scanned: new Date().toISOString(),
               manifests: {
                 "gradle-dependencies": {
+                  name: "gradle-dependencies",
                   file: {
-                    source_location: "build/dependency-graph.json",
+                    source_location: dependencyGraphFile
                   },
                   metadata: {},
-                  dependencies: JSON.parse(dependencyGraph).dependencies,
+                  dependencies: dependencyGraph.dependencies
                 }
-              }
+             }
             }
           });
+
+          // ✅ Log status and response body
+          console.log(`✅ Submission Response Status: ${response.status}`);
+          console.log(`📎 Submission URL: ${response.url}`);
+          console.log(`📦 Response Data: ${JSON.stringify(response.data, null, 2)}`);
+
+          } catch (error) {
+            console.error("❌ Failed to submit dependency graph:");
+            console.error(error);
+            core.setFailed(error.message);
+          }
+
