@@ -65,7 +65,7 @@ runs:
             console.log(`Ref to send in API: ${ref}`);
             console.log(`Commit SHA to use: ${commitSha}`);
 
-            const jobName = context.job;
+            const jobName = `${context.job}-${context.runId}-${context.sha}`;
 
             console.log("Submitting Dependency Graph");
             console.log(`Owner: ${owner}`);
